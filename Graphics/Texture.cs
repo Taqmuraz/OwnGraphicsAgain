@@ -1,0 +1,44 @@
+﻿using EnginePart;
+using System;
+using System.Drawing;
+
+namespace OwnGraphicsAgain
+{
+	public class Texture
+	{
+		private int[] buffer;
+		private int width, height;
+
+		public Texture(string fileName)
+		{
+			Bitmap bitmap = new Bitmap(fileName);
+			width = bitmap.Width;
+			height = bitmap.Height;
+			buffer = new int[width * height];
+
+			for (int x = 0; x < bitmap.Width; x++)
+			{
+				for (int y = 0; y < bitmap.Height; y++)
+				{
+					buffer[x + y * width] = bitmap.GetPixel(x, y).ToArgb();
+				}
+			}
+		}
+
+		public Color GetColor(Vector2 uv)
+		{
+			uv.y = 1f - uv.y;
+
+			int x = (int)(uv.x * width);
+			int y = (int)(uv.y * height);
+
+			x %= width;
+			y %= height;
+
+			if (x < 0) x = width + x;
+			if (y < 0) y = height + y;
+
+			return Color.FromArgb(buffer[x + y * width]);
+		}
+	}
+}
