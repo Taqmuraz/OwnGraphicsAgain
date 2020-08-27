@@ -44,7 +44,12 @@ namespace EnginePart
 			return Sin(v) / Cos(v);
 		}
 
-		public static Vector3 Barycentric(Vector2 v0, Vector2 v1, Vector2 v2, Vector2 p)
+		public static int Round(this float i)
+		{
+			return (int)Math.Round(i);
+		}
+
+		public static Vector3 Barycentric(ref Vector3 v0, ref Vector3 v1, ref Vector3 v2, Vector2 p)
 		{
 			Vector3 u = Vector3.Cross(new Vector3(v2.x - v0.x, v1.x - v0.x, v0.x - p.x), new Vector3(v2.y - v0.y, v1.y - v0.y, v0.y - p.y));
 			if (Abs(u.z) < 1) return new Vector3(-1, 1, 1);
@@ -52,6 +57,12 @@ namespace EnginePart
 		}
 
 		public static void Swap<T>(this object obj, ref T a, ref T b)
+		{
+			T temp = a;
+			a = b;
+			b = temp;
+		}
+		public static void Swap<T>(ref T a, ref T b)
 		{
 			T temp = a;
 			a = b;
@@ -102,6 +113,12 @@ namespace EnginePart
 			return Determinant(axis_a.x, axis_b.x, axis_a.y, axis_b.y);
 		}
 		public static int Clamp (this int a, int min, int max)
+		{
+			if (a > max) a = max;
+			if (a < min) a = min;
+			return a;
+		}
+		public static float Clamp(this float a, float min, float max)
 		{
 			if (a > max) a = max;
 			if (a < min) a = min;

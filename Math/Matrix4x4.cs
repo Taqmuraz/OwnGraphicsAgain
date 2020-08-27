@@ -225,5 +225,10 @@ namespace EnginePart
 		{
 			return (Vector3)(this * new Vector4(point.x, point.y, point.z, 0f));
 		}
+		public Vector3 MultiplySize(Vector3 point)
+		{
+			Vector3 size = new Vector3(column_0.length, column_1.length, column_2.length);
+			return new Vector3(point.x * size.x, point.y * size.y, point.z * size.z);
+		}
 	}
 }

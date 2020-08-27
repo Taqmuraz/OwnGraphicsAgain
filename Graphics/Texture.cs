@@ -38,6 +38,8 @@ namespace OwnGraphicsAgain
 			if (x < 0) x = width + x;
 			if (y < 0) y = height + y;
 
+			//return new Color32(255f * uv.x, 255f * uv.y, 0f, 255f);
+
 			return Color.FromArgb(buffer[x + y * width]);
 		}
 	}

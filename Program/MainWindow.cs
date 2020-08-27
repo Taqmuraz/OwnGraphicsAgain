@@ -23,8 +23,8 @@ namespace OwnGraphicsAgain
 
 		private void ResizePanel()
 		{
-			CreatePanel(Width, Height);
-			//panel.Bounds = new Rectangle(0, 0, Width, Height);
+			//CreatePanel(Width, Height);
+			panel.Bounds = new Rectangle(0, 0, Width, Height);
 		}
 
 		public MainWindow()
@@ -32,13 +32,13 @@ namespace OwnGraphicsAgain
 			InitializeComponent();
 
 
-			Size = new Size(512, 256);
+			Size = new Size(280, 180);
 			CreatePanel(Width, Height);
 			SizeChanged += (s, e) => ResizePanel();
 
 			timer = new Timer();
 			timer.Tick += (s, e) => Draw();
-			timer.Interval = 20;
+			timer.Interval = 10;
 			timer.Start();
 			Disposed += (s, e) => timer.Dispose();
 
@@ -64,10 +64,17 @@ namespace OwnGraphicsAgain
 			}
 		}
 
+		protected override void OnMouseWheel(MouseEventArgs e)
+		{
+			base.OnMouseWheel(e);
+			modelSizeMul += e.Delta * 0.001f;
+		}
+
 		DateTime lastFrameTime;
 		int fpsMax;
 		int fpsMin;
 		int fps;
+		float modelSizeMul = 1f;
 
 		private void Draw()
 		{
@@ -89,14 +96,14 @@ namespace OwnGraphicsAgain
 		protected virtual void OnDraw()
 		{
 			Vector2 size = panel.imageSize;
-			float scale = size.y * 10f;
+			float scale = size.y * modelSizeMul * (1f / mesh.localBounds.size.length);
 
 			Vector3 right = Vector3.right * scale;
 			Vector3 up = Vector3.up * scale;
 			Vector3 forward = Vector3.forward * scale;
 
-			Matrix4x4 matrix = Matrix4x4.CreateRotationMatrix(new Vector3(0f, 1f, 0f) * (float)DateTime.Now.TimeOfDay.TotalSeconds * 30f);
-			matrix *= Matrix4x4.CreateWorldMatrix(right, up, forward, new Vector3(size.x * 0.5f, size.y * 0.25f, 0f));
+			Matrix4x4 matrix = Matrix4x4.CreateRotationMatrix_Z(45f) * Matrix4x4.CreateRotationMatrix(new Vector3(0f, 1f, 0f) * (float)DateTime.Now.TimeOfDay.TotalSeconds * 30f);
+			matrix *= Matrix4x4.CreateWorldMatrix(right, up, forward, new Vector3(size.x * 0.5f, size.y * 0.15f, 0f));
 
 			panel.DrawMesh(mesh, matrix);
 		}

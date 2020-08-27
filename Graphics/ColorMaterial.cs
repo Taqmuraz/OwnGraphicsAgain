@@ -1,5 +1,6 @@
 ﻿using EnginePart;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace OwnGraphicsAgain
 {
@@ -17,9 +18,14 @@ namespace OwnGraphicsAgain
 			this.color = color;
 		}
 
-		public override Color32 GetColor(Vector2 uv)
+		public override Color32 FragmentShader(Vector3 barycentric, out float zBuffer, IFragmentShaderData shaderData)
 		{
-			return color;
+			zBuffer = shaderData.GetVertex(ref barycentric).z;
+			return color * DotForBarycentric(ref barycentric, shaderData);
+		}
+
+		public override void VertexShader(IVertexShaderData shaderData)
+		{
 		}
 	}
 }
