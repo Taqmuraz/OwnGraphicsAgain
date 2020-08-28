@@ -20,7 +20,14 @@ namespace OwnGraphicsAgain
 		private int width, height;
 
 		int LARGE_TRIANGLE_SQUARE;
-		int FAST_DRAW_PIXEL_SIZE = 3;
+		int DRAW_PIXEL_SIZE = 3;
+		const int MAX_DRAW_PIXEL_SIZE = 5;
+		const int MIN_DRAW_PIXEL_SIZE = 1;
+
+		public Matrix4x4 projectionMatrix { get; set; } = Matrix4x4.identity;
+		public Matrix4x4 viewMatrix { get; set; } = Matrix4x4.identity;
+
+		private Matrix4x4 screenOffsetMatrix;
 
 		private class BakedTriangleData : IFragmentShaderData
 		{
@@ -113,21 +120,23 @@ namespace OwnGraphicsAgain
 
 		private void FillZone(int startX, int startY, int sizeX, int sizeY, float depth, Color color)
 		{
+			WritePixel(startX, startY, depth, color);
 			for (int x = 0; x < sizeX; x++)
 				for (int y = 0; y < sizeY; y++)
-					WritePixel(startX + x, startY + y, depth, color);
+					WritePixel(x + startX, y + startY, depth, color);
 		}
 
 		public void WritePixel(int x, int y, float depth, Color color)
 		{
-			y = (height - 1) - y;
+			if (x < width && y < height && x >= 0 && y >= 0)
+			{
+				int ptr = y * width + x;
+				if (ptr < 0 || ptr >= pixelsBuffer.Length) return;
+				if (depth <= depthBuffer[ptr]) return;
 
-			int ptr = y * width + x;
-			if (ptr < 0 || ptr >= pixelsBuffer.Length) return;
-			if (depth <= depthBuffer[ptr]) return;
-
-			pixelsBuffer[ptr] = color.ToArgb();
-			depthBuffer[ptr] = depth;
+				pixelsBuffer[ptr] = color.ToArgb();
+				depthBuffer[ptr] = depth;
+			}
 		}
 
 		public Color ReadPixel(int x, int y)
@@ -141,7 +150,9 @@ namespace OwnGraphicsAgain
 			this.width = width;
 			this.height = height;
 
-			LARGE_TRIANGLE_SQUARE = width * height >> 2;
+			LARGE_TRIANGLE_SQUARE = width * height >> 8;
+
+			screenOffsetMatrix = Matrix4x4.CreateWorldMatrix(Vector3.right / width, Vector3.up / height, Vector3.forward, Vector3.zero);
 
 			SetBounds(0, 0, width, height);
 
@@ -165,16 +176,10 @@ namespace OwnGraphicsAgain
 		{
 			Array.Copy(depthBufferClear, depthBuffer, width * height);
 			Array.Copy(pixelsBufferClear, pixelsBuffer, width * height);
-			//Array.Clear(depthBuffer, 0, width * height);
-			//Array.Clear(pixelsBuffer, 0, width * height);
 		}
 
 		private void DrawTriangle_Fast_But_Low_Quality(ref Vector3 v0, ref Vector3 v1, ref Vector3 v2, BakedTriangleData data, Material material)
 		{
-			Vector3 cross = Vector3.Cross(v0 - v2, v1 - v2);
-			float dot = Vector3.Dot(cross.normalized, Vector3.forward);
-			if (dot < 0) return;
-
 			Vector3 b0 = Vector3.right;
 			Vector3 b1 = Vector3.up;
 			Vector3 b2 = Vector3.forward;
@@ -204,15 +209,17 @@ namespace OwnGraphicsAgain
 			Vector2Int min = new Vector2Int((int)Mathf.Min(v0.x, v1.x, v2.x), (int)Mathf.Min(v0.y, v1.y, v2.y));
 			Vector2Int max = new Vector2Int((int)Mathf.Max(v0.x, v1.x, v2.x), (int)Mathf.Max(v0.y, v1.y, v2.y));
 
-			Vector3 cross = Vector3.Cross(v0 - v2, v1 - v2);
-			float dot = Vector3.Dot(cross.normalized, Vector3.forward);
-			if (dot < 0) return;
+			Vector2Int screen_size = max - min;
+			int pixelSizeLevel = ((screen_size.x * screen_size.y) / LARGE_TRIANGLE_SQUARE);
+			DRAW_PIXEL_SIZE = pixelSizeLevel * 2 + 1;
+			DRAW_PIXEL_SIZE = DRAW_PIXEL_SIZE.Clamp(MIN_DRAW_PIXEL_SIZE, MAX_DRAW_PIXEL_SIZE);
+
 			Vector2Int.ClampInclusive(ref min, imageSizeInt);
 			Vector2Int.ClampInclusive(ref max, imageSizeInt);
 
-			for (int x = min.x; x <= max.x; x++)
+			for (int x = min.x; x <= max.x; x+=DRAW_PIXEL_SIZE)
 			{
-				for (int y = min.y; y <= max.y; y++)
+				for (int y = min.y; y <= max.y; y+=DRAW_PIXEL_SIZE)
 				{
 					Vector3 barycentricScreen = Mathf.Barycentric(ref v0, ref v1, ref v2, new Vector2(x, y));
 					if (barycentricScreen.x < 0 || barycentricScreen.y < 0 || barycentricScreen.z < 0) continue;
@@ -222,7 +229,17 @@ namespace OwnGraphicsAgain
 					if (material == null) color = Color.Magenta;
 					else color = material.FragmentShader(barycentricScreen, out zBuffer, data);
 
-					WritePixel(x, y, zBuffer, color);
+					int doubleSize = DRAW_PIXEL_SIZE << 1;
+					int cX = x - x % DRAW_PIXEL_SIZE;
+					int cY = y - y % DRAW_PIXEL_SIZE;
+
+					for (int i = 0; i <= doubleSize; i++)
+					{
+						for (int j = 0; j <= doubleSize; j++)
+						{
+							WritePixel(cX + i, cY + j, zBuffer, color);
+						}
+					}
 				}
 			}
 		}
@@ -256,7 +273,7 @@ namespace OwnGraphicsAgain
 
 			int end = buttom ? vi1.y : vi0.y;
 
-			for (int y = startPos.y; y <= end; y+=FAST_DRAW_PIXEL_SIZE)
+			for (int y = startPos.y; y <= end; y+=DRAW_PIXEL_SIZE)
 			{
 				if (y < 0 || y >= height) continue;
 
@@ -275,18 +292,26 @@ namespace OwnGraphicsAgain
 					this.Swap(ref barycentric_full, ref barycentric_half);
 				}
 
-				for (int x = start_x; x <= end_x; x+=FAST_DRAW_PIXEL_SIZE)
+				for (int x = start_x; x <= end_x; x+=DRAW_PIXEL_SIZE)
 				{
-					if (x < 0 || x >= width) continue;
+					if (x + DRAW_PIXEL_SIZE < 0 || x >= width) continue;
 
 					Vector3 barycentric_screen = Vector3.Lerp(barycentric_half, barycentric_full, (x - start_x) / (float)(end_x - start_x));
+
+					if (barycentric_screen.x < 0 || barycentric_screen.y < 0 || barycentric_screen.z < 0) continue;
 
 					Color color;
 					float zBuffer = 0f;
 					if (material == null) color = Color.Magenta;
 					else  color = material.FragmentShader(barycentric_screen, out zBuffer, data);
 
-					FillZone(x, y, FAST_DRAW_PIXEL_SIZE, FAST_DRAW_PIXEL_SIZE, zBuffer, color);
+					for (int i = 0; i < DRAW_PIXEL_SIZE; i++)
+					{
+						for (int j = 0; j < DRAW_PIXEL_SIZE; j++)
+						{
+							WritePixel(x + i, j + y, zBuffer, color);
+						}
+					}
 				}
 			}
 		}
@@ -330,11 +355,6 @@ namespace OwnGraphicsAgain
 				if (x < width && y < height && x >= 0 && y >= 0) WritePixel(x, y, float.PositiveInfinity, color);
 			}
 		}
-
-		private VertexData[] vertexDataNonAlloc = new VertexData[3]
-		{
-			new VertexData(), new VertexData(), new VertexData()
-		};
 		BakedTriangleData bakedData = new BakedTriangleData();
 
 		private bool IsInsideScreen(Vector3 point)
@@ -342,24 +362,23 @@ namespace OwnGraphicsAgain
 			return point.x < width && point.y < height && point.x >= 0 && point.y >= 0;
 		}
 
-		public void DrawMesh (Mesh mesh, Matrix4x4 matrix)
+		private void ProjectionToScreen(ref Vector3 projection)
 		{
-			bool fast;
-			Vector2 min = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
-			Vector2 max = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
+			projection.y = 1f - projection.y;
 
-			for (int i = 0; i < mesh.vertices.Length; i++)
-			{
-				Vector3 vertex = matrix.MultiplyPoint(mesh.vertices[i]);
-				if (vertex.x > max.x) max.x = vertex.x;
-				if (vertex.y > max.y) max.y = vertex.y;
-				if (vertex.x < min.x) min.x = vertex.x;
-				if (vertex.y < min.y) min.y = vertex.y;
-			}
+			projection.x = (projection.x + 1f) * width * 0.5f;
+			projection.y = (projection.y + 1f) * height * 0.5f;
+		}
 
-			Vector2 screen_size = max - min;
+		private VertexData[] vertexDataNonAlloc = new VertexData[3]
+		{
+			new VertexData(), new VertexData(), new VertexData()
+		};
+		private Vector3[] clipVerticesNonAlloc = new Vector3[3];
 
-			fast = screen_size.x * screen_size.y > LARGE_TRIANGLE_SQUARE;
+		public void DrawMesh (Mesh mesh, Matrix4x4 model)
+		{
+			Matrix4x4 mvp = model * viewMatrix * projectionMatrix;
 
 			for (int i = 0; i < mesh.indices.Length; i+=3)
 			{
@@ -368,18 +387,30 @@ namespace OwnGraphicsAgain
 					Mesh.VertexIndex vertexIndex = mesh.indices[i + index];
 
 					VertexData data = vertexDataNonAlloc[index];
-					data.vertex = matrix.MultiplyPoint(mesh.vertices[vertexIndex.vertex]);
-					data.normal = matrix.MultiplyVector(mesh.normals[vertexIndex.normal]).normalized;
+					data.vertex = clipVerticesNonAlloc[index] = mvp.MultiplyPoint(mesh.vertices[vertexIndex.vertex]);
+					data.normal = model.MultiplyVector(mesh.normals[vertexIndex.normal]).normalized;
 					data.uv = mesh.uv[vertexIndex.uv];
 
-					mesh.material.VertexShader(data);
+					if (mesh.material != null) mesh.material.VertexShader(data);
 				}
+
+				for (int v = 0; v < 3; v++)
+				{
+					ProjectionToScreen(ref vertexDataNonAlloc[v].vertex);
+				}
+
+				Vector3 v0 = vertexDataNonAlloc[0].vertex;
+				Vector3 v1 = vertexDataNonAlloc[1].vertex;
+				Vector3 v2 = vertexDataNonAlloc[2].vertex;
+
+				Vector3 cross = Vector3.Cross(v0 - v2, v1 - v2);
+				float dot = Vector3.Dot(cross.normalized, Vector3.forward);
+				if (dot < 0) continue;
 
 				if (IsInsideScreen(vertexDataNonAlloc[0].vertex) || IsInsideScreen(vertexDataNonAlloc[1].vertex) || IsInsideScreen(vertexDataNonAlloc[2].vertex))
 				{
 					bakedData.SetData(vertexDataNonAlloc[0], vertexDataNonAlloc[1], vertexDataNonAlloc[2]);
-					if (fast) DrawTriangle_Fast_But_Low_Quality (ref vertexDataNonAlloc[0].vertex, ref vertexDataNonAlloc[1].vertex, ref vertexDataNonAlloc[2].vertex, bakedData, mesh.material);
-					else DrawTriangle_Slow_But_HighQuality (ref vertexDataNonAlloc[0].vertex, ref vertexDataNonAlloc[1].vertex, ref vertexDataNonAlloc[2].vertex, bakedData, mesh.material);
+					DrawTriangle_Slow_But_HighQuality(ref vertexDataNonAlloc[0].vertex, ref vertexDataNonAlloc[1].vertex, ref vertexDataNonAlloc[2].vertex, bakedData, mesh.material);
 				}
 			}
 		}

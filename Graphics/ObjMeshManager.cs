@@ -3,6 +3,7 @@ using EnginePart;
 using System.Collections.Generic;
 using System.IO;
 using System.Globalization;
+using System.Linq;
 
 namespace OwnGraphicsAgain
 {
@@ -19,11 +20,11 @@ namespace OwnGraphicsAgain
 			{
 				var file = new StreamReader(path);
 
-				string[] lines = file.ReadToEnd().Split('\n');
+				string[] lines = file.ReadToEnd().Split('\n').Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
 
 				for (int l = 0; l < lines.Length; l++)
 				{
-					string[] words = lines[l].Split(' ');
+					string[] words = lines[l].Split(' ').Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
 
 					var culture = CultureInfo.InvariantCulture;
 
@@ -53,11 +54,12 @@ namespace OwnGraphicsAgain
 						{
 							Mesh.VertexIndex index = new Mesh.VertexIndex();
 
-							string[] vertexDesc = words[f].Split('/');
+							string[] vertexDesc = words[f].Split('/').Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
 
 							index.vertex = int.Parse(vertexDesc[0]) - 1;
 							index.uv = int.Parse(vertexDesc[1]) - 1;
 							index.normal = int.Parse(vertexDesc[2]) - 1;
+
 
 							indices.Add(index);
 						}

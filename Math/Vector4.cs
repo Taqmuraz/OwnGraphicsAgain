@@ -64,6 +64,10 @@
 			return new Vector2(v.x, v.y);
 		}
 
+		public static Vector4 Lerp(Vector4 a, Vector4 b, float t)
+		{
+			return a + (b - a) * t;
+		}
 		public float length
 		{
 			get

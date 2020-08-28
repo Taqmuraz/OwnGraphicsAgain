@@ -10,6 +10,7 @@ namespace EnginePart
 		public Vector4 column_2;
 		public Vector4 column_3;
 
+		public static readonly Matrix4x4 identity = new Matrix4x4(new Vector4(1f, 0f, 0f, 0f), new Vector4(0f, 1f, 0f, 0f), new Vector4(0f, 0f, 1f, 0f), new Vector4(0f, 0f, 0f, 1f));
 		public Vector4 GetLine (int index)
 		{
 			switch (index)
@@ -34,6 +35,17 @@ namespace EnginePart
 		{
 		}
 
+		public static Matrix4x4 CreateViewport (int width, int height)
+		{
+			Matrix4x4 m = new Matrix4x4();
+			m.column_0 = new Vector4(width / 2, 0f, 0f, 0);
+			m.column_1 = new Vector4(0f, height / 2, 0f, 0);
+			m.column_2 = new Vector4(0f, 0f, 1f, 0f);
+			m.column_3 = new Vector4(0f, 0f, 0f, 1f);
+
+			return m;
+		}
+
 		public Matrix4x4 (Vector4 column_0, Vector4 column_1, Vector4 column_2, Vector4 column_3)
 		{
 			this.column_0 = column_0;
@@ -41,11 +53,6 @@ namespace EnginePart
 			this.column_2 = column_2;
 			this.column_3 = column_3;
 		}
-
-		public static readonly Matrix4x4 one = new Matrix4x4(new Vector4(1, 0, 0, 0), new Vector4(0, 1, 0, 0), new Vector4(0, 0, 1, 0), new Vector4(0, 0, 0, 1));
-		public static readonly Matrix4x4 zero = new Matrix4x4 ();
-		public static readonly Matrix4x4 worldToScreen = one;
-		public static readonly Matrix4x4 screenToWorld = worldToScreen.GetInversed();
 
 		public static Vector4 operator * (Matrix4x4 m, Vector4 v)
 		{
@@ -140,7 +147,9 @@ namespace EnginePart
 		}
 		public Matrix4x4 Translate (Vector3 position)
 		{
-			return new Matrix4x4(column_0, column_1, column_2, column_3 + new Vector4(position.x, position.y, position.z, 0f));
+			Matrix4x4 matrix = identity;
+			matrix.column_3 = new Vector4(position.x, position.y, position.z, 1f);
+			return matrix * this;
 		}
 		public static Matrix4x4 CreateWorldMatrix (Vector3 right, Vector3 up, Vector3 forward, Vector3 position)
 		{
@@ -161,6 +170,15 @@ namespace EnginePart
 		public static Matrix4x4 CreateTranslationMatrix(Vector3 pos)
 		{
 			return new Matrix4x4(Vector3.right, Vector3.up, Vector3.forward, new Vector4(pos.x, pos.y, pos.z, 1f));
+		}
+
+		public static Matrix4x4 Lerp(Matrix4x4 a, Matrix4x4 b, float t)
+		{
+			a.column_0 = Vector4.Lerp(a.column_0, b.column_0, t);
+			a.column_1 = Vector4.Lerp(a.column_1, b.column_1, t);
+			a.column_2 = Vector4.Lerp(a.column_2, b.column_2, t);
+			a.column_3 = Vector4.Lerp(a.column_3, b.column_3, t);
+			return a;
 		}
 		public static Matrix4x4 CreateRotationMatrix_X(float angle)
 		{
@@ -205,16 +223,14 @@ namespace EnginePart
 			up = Vector3.Cross(fwd, right);
 			return new Matrix4x4(right, up, fwd, new Vector4(0,0,0,1));
 		}
-		public static Matrix4x4 CreateProjectionMatrix(float fovy, float aspect, float zNear, float zFar)
+		public static Matrix4x4 CreateFrustumMatrix(float left, float right, float bottom, float top, float near, float far)
 		{
-			float tanHalfFovy = (float)Math.Tan(fovy / 2.0f);
+			Vector4 row1 = new Vector4(2f / (right - left), 0.0f, 0.0f, -(right + left) / (right - left));
+			Vector4 row2 = new Vector4(0.0f, 2 / (top - bottom), 0.0f, -(top + bottom)/(top - bottom));
+			Vector4 row3 = new Vector4(0.0f, 0.0f, -2 / (far - near), -(far + near)/(far - near));
+			Vector4 row4 = new Vector4(0.0f, 0.0f, 0f, 1.0f);
 
-			Vector4 row1 = new Vector4(1.0f / (aspect * tanHalfFovy), 0.0f, 0.0f, 0.0f);
-			Vector4 row2 = new Vector4(0.0f, 1.0f / (tanHalfFovy), 0.0f, 0.0f);
-			Vector4 row3 = new Vector4(0.0f, 0.0f, -(zFar + zNear) / (zFar - zNear), -1.0f);
-			Vector4 row4 = new Vector4(0.0f, 0.0f, -(2.0f * zFar * zNear) / (zFar - zNear), 0.0f);
-
-			return new Matrix4x4(row1, row2, row3, row4);
+			return new Matrix4x4(row1, row2, row3, row4).GetTransponed();
 		}
 
 		public Vector3 MultiplyPoint(Vector3 point)

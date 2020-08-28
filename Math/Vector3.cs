@@ -80,6 +80,12 @@ namespace EnginePart
 			return new Vector3(v.x, v.y, v.z);
 		}
 
+		public static void Clamp(ref Vector3 v, float max)
+		{
+			float length = v.length;
+			v = length > max ? v.normalized * max : v;
+		}
+
 		public float length
 		{
 			get
@@ -118,5 +124,29 @@ namespace EnginePart
 		public static readonly Vector3 down = new Vector3 (0, -1, 0);
 		public static readonly Vector3 forward = new Vector3 (0, 0, 1);
 		public static readonly Vector3 back = new Vector3 (0, 0, -1);
+
+		public float this[int index]
+		{
+			get
+			{
+				switch (index)
+				{
+					case 0: return x;
+					case 1: return y;
+					case 2: return z;
+					default: return 0;
+				}
+			}
+			set
+			{
+				switch (index)
+				{
+					case 0: x = value; break;
+					case 1: y = value; break;
+					case 2: z = value; break;
+					default: break;
+				}
+			}
+		}
 	}
 }
