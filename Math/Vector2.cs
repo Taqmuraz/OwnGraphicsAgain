@@ -3,6 +3,7 @@ using System.Drawing;
 
 namespace EnginePart
 {
+
 	public struct Vector2
 	{
 		public float x, y;

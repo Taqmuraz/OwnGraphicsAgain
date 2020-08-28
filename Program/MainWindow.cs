@@ -20,13 +20,6 @@ namespace OwnGraphicsAgain
 			panel.Bounds = new Rectangle(0, 0, Width, Height);
 			panel.SizeMode = PictureBoxSizeMode.StretchImage;
 			panel.MouseMove += OnMouseMove;
-
-			panel.Paint += OnPanelPaint;
-		}
-
-		private void OnPanelPaint(object sender, PaintEventArgs e)
-		{
-			e.Graphics.DrawString($"{modelMatrix.column_3}", Font, Brushes.White, new PointF());
 		}
 
 		private void ResizePanel()
@@ -60,22 +53,24 @@ namespace OwnGraphicsAgain
 
 			try
 			{
-				string path = "F:/BLENDER_MODELS/Soldier.obj";
+				string path = "F:/BLENDER_MODELS/Terrain.obj";
 				model = ObjMeshManager.LoadMesh(path);
 				path = "F:/BLENDER_MODELS/FlyStation.obj";
 
 				flat = ObjMeshManager.LoadMesh(path);
-				Texture texture = new Texture("F:/BLENDER_MODELS/Soldier.png");
+				Texture texture = new Texture("F:/BLENDER_MODELS/Grass.png");
 				model.material = new TextureMaterial(texture);
+				texture.tiling = new Vector2(1f, 1f);
+				//model.material = new ColorMaterial(Color.Green);
 				flat.material = new ColorMaterial(Color.Gray);
 
-				float scale = 10f;
+				float scale = 0.25f;
 
 				Vector3 right = Vector3.right * scale;
 				Vector3 up = Vector3.up * scale;
 				Vector3 forward = Vector3.forward * scale;
 
-				modelMatrix = Matrix4x4.CreateWorldMatrix(right, up, forward, new Vector3(0f, 0f, -1f));
+				modelMatrix = Matrix4x4.CreateWorldMatrix(right, up, forward, new Vector3(0f, 0f, 0f));
 			}
 			catch (Exception ex)
 			{
@@ -144,7 +139,7 @@ namespace OwnGraphicsAgain
 				case 'w': move.z += 1f; break;
 				case 's': move.z -= 1f; break;
 			}
-			controlPositionInput += move * 0.001f;
+			controlPositionInput += move * cameraFOVmul;
 		}
 
 		DateTime lastFrameTime;
@@ -155,18 +150,19 @@ namespace OwnGraphicsAgain
 		Vector3 controlRotation;
 		Vector3 modelRotationInput;
 		Matrix4x4 modelMatrix;
+		Matrix4x4 viewMatrix;
 		float cameraFOVmul = 1f;
 
 		private void CameraUpdate()
 		{
 			cameraFOVmul = cameraFOVmul.Clamp(0.5f, 2f);
 
-			Vector2 size = panel.imageSize;
-			Matrix4x4 projection = Matrix4x4.CreateFrustumMatrix(60f * cameraFOVmul, size.x / size.y, 0.1f, 10f);
+			panel.fieldOfView = 60f * cameraFOVmul;
+			panel.farPlane = 1f;
+
+			viewMatrix = Matrix4x4.RotateAround(controlRotation, -controlPositionInput);
 			
-			panel.projectionMatrix = projection;
-			Matrix4x4 view = Matrix4x4.RotateAround(controlRotation, Vector3.zero);
-			panel.viewMatrix = view;
+			panel.viewMatrix = viewMatrix;
 		}
 
 		private void Draw()
@@ -191,10 +187,11 @@ namespace OwnGraphicsAgain
 		protected virtual void OnDraw()
 		{
 			modelMatrix = Matrix4x4.RotateAround(modelRotationInput, Vector3.zero) * modelMatrix;
-			modelMatrix = modelMatrix.Translate(controlPositionInput);
+			modelRotationInput = Vector3.zero;
 
-			controlPositionInput = modelRotationInput = Vector3.zero;
+			//float flatScale = 1f;
 
+			//panel.DrawMesh(flat, Matrix4x4.CreateWorldMatrix(Vector3.right * flatScale, Vector3.up * flatScale, Vector3.forward * flatScale, Vector3.zero));
 			panel.DrawMesh(model, modelMatrix);
 		}
 	}

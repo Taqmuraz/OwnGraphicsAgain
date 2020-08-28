@@ -12,6 +12,14 @@
 			this.w = w;
 		}
 
+		public Vector4(Vector3 vector, float w)
+		{
+			x = vector.x;
+			y = vector.y;
+			z = vector.z;
+			this.w = w;
+		}
+
 		public static Vector4 operator +(Vector4 a, Vector4 b)
 		{
 			return new Vector4(a.x + b.x, a.y + b.y, a.z + b.z, b.w + a.w);
@@ -66,6 +74,7 @@
 
 		public Vector3 ToVector3WithWDevision()
 		{
+			if (w == 0) return new Vector3();
 			float dev = 1f / w;
 			return new Vector3(x * dev, y * dev, z * dev);
 		}

@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System;
 using EnginePart;
 using System.IO;
+using System.Collections.Generic;
 
 namespace OwnGraphicsAgain
 {
@@ -24,7 +25,11 @@ namespace OwnGraphicsAgain
 		const int MAX_DRAW_PIXEL_SIZE = 5;
 		const int MIN_DRAW_PIXEL_SIZE = 1;
 
-		public Matrix4x4 projectionMatrix { get; set; } = Matrix4x4.identity;
+		private Matrix4x4 projectionMatrix;
+
+		public float nearPlane { get; set; } = 0.1f;
+		public float farPlane { get; set; } = 1000f;
+		public float fieldOfView { get; set; } = 60f;
 		public Matrix4x4 viewMatrix { get; set; } = Matrix4x4.identity;
 
 		private Matrix4x4 screenOffsetMatrix;
@@ -42,7 +47,7 @@ namespace OwnGraphicsAgain
 			{
 			}
 
-			public void SetData (VertexData v0, VertexData v1, VertexData v2)
+			public void SetData(VertexData v0, VertexData v1, VertexData v2)
 			{
 				Matrix4x4 matrix = new Matrix4x4();
 
@@ -150,7 +155,7 @@ namespace OwnGraphicsAgain
 			this.width = width;
 			this.height = height;
 
-			LARGE_TRIANGLE_SQUARE = width * height >> 8;
+			LARGE_TRIANGLE_SQUARE = width * height >> 6;
 
 			screenOffsetMatrix = Matrix4x4.CreateWorldMatrix(Vector3.right / width, Vector3.up / height, Vector3.forward, Vector3.zero);
 
@@ -211,15 +216,15 @@ namespace OwnGraphicsAgain
 
 			Vector2Int screen_size = max - min;
 			int pixelSizeLevel = ((screen_size.x * screen_size.y) / LARGE_TRIANGLE_SQUARE);
-			DRAW_PIXEL_SIZE = pixelSizeLevel * 2 + 1;
+			DRAW_PIXEL_SIZE = pixelSizeLevel;
 			DRAW_PIXEL_SIZE = DRAW_PIXEL_SIZE.Clamp(MIN_DRAW_PIXEL_SIZE, MAX_DRAW_PIXEL_SIZE);
 
 			Vector2Int.ClampInclusive(ref min, imageSizeInt);
 			Vector2Int.ClampInclusive(ref max, imageSizeInt);
 
-			for (int x = min.x; x <= max.x; x+=DRAW_PIXEL_SIZE)
+			for (int x = min.x; x <= max.x; x += DRAW_PIXEL_SIZE)
 			{
-				for (int y = min.y; y <= max.y; y+=DRAW_PIXEL_SIZE)
+				for (int y = min.y; y <= max.y; y += DRAW_PIXEL_SIZE)
 				{
 					Vector3 barycentricScreen = Mathf.Barycentric(ref v0, ref v1, ref v2, new Vector2(x, y));
 					if (barycentricScreen.x < 0 || barycentricScreen.y < 0 || barycentricScreen.z < 0) continue;
@@ -273,7 +278,7 @@ namespace OwnGraphicsAgain
 
 			int end = buttom ? vi1.y : vi0.y;
 
-			for (int y = startPos.y; y <= end; y+=DRAW_PIXEL_SIZE)
+			for (int y = startPos.y; y <= end; y += DRAW_PIXEL_SIZE)
 			{
 				if (y < 0 || y >= height) continue;
 
@@ -292,7 +297,7 @@ namespace OwnGraphicsAgain
 					this.Swap(ref barycentric_full, ref barycentric_half);
 				}
 
-				for (int x = start_x; x <= end_x; x+=DRAW_PIXEL_SIZE)
+				for (int x = start_x; x <= end_x; x += DRAW_PIXEL_SIZE)
 				{
 					if (x + DRAW_PIXEL_SIZE < 0 || x >= width) continue;
 
@@ -303,7 +308,7 @@ namespace OwnGraphicsAgain
 					Color color;
 					float zBuffer = 0f;
 					if (material == null) color = Color.Magenta;
-					else  color = material.FragmentShader(barycentric_screen, out zBuffer, data);
+					else color = material.FragmentShader(barycentric_screen, out zBuffer, data);
 
 					for (int i = 0; i < DRAW_PIXEL_SIZE; i++)
 					{
@@ -357,9 +362,28 @@ namespace OwnGraphicsAgain
 		}
 		BakedTriangleData bakedData = new BakedTriangleData();
 
-		private bool IsInsideScreen(Vector3 point)
+		private bool IsTriangleInsideScreen(ref Vector3 v0, ref Vector3 v1, ref Vector3 v2)
 		{
-			return point.x <= width && point.y <= width && point.x >= 0f && point.y >= 0f && point.z > 0f;
+			OwnGraphicsAgain.Bounds bounds = OwnGraphicsAgain.Bounds.MinMax(new Vector3(0f, 0f, 0f), new Vector3(width, height, 1f));
+			return bounds.Contains(v0) || bounds.Contains(v1) || bounds.Contains(v2);
+			OwnGraphicsAgain.Bounds triangleBounds = OwnGraphicsAgain.Bounds.TriangleBounds(ref v0, ref v1, ref v2);
+			boundsToDraw.Add(triangleBounds);
+			return triangleBounds.IntersectsWith(bounds);
+			//return point.x <= width && point.y <= height && point.x >= 0f && point.y >= 0f && point.z > 0f;
+		}
+		private List<Bounds> boundsToDraw = new List<Bounds>();
+
+		protected override void OnPaint(PaintEventArgs pe)
+		{
+			base.OnPaint(pe);
+			foreach (var b in boundsToDraw)
+			{
+				float f = (float)Width / width;
+				Vector3 size = b.size * f;
+				Vector3 min = b.min * f;
+				pe.Graphics.DrawRectangle(Pens.Red, new Rectangle((int)min.x, (int)min.y, (int)size.x, (int)size.y));
+			}
+			boundsToDraw.Clear();
 		}
 
 		private void ProjectionToScreen(ref Vector3 projection)
@@ -374,11 +398,13 @@ namespace OwnGraphicsAgain
 		};
 		private Vector3[] clipVerticesNonAlloc = new Vector3[3];
 
-		public void DrawMesh (Mesh mesh, Matrix4x4 model)
+		public void DrawMesh(Mesh mesh, Matrix4x4 model)
 		{
+			projectionMatrix = Matrix4x4.CreateFrustumMatrix(fieldOfView, width / (float)height, nearPlane, farPlane);
+
 			Matrix4x4 mvp = model * viewMatrix * projectionMatrix;
 
-			for (int i = 0; i < mesh.indices.Length; i+=3)
+			for (int i = 0; i < mesh.indices.Length; i += 3)
 			{
 				for (int index = 0; index < 3; index++)
 				{
@@ -407,7 +433,7 @@ namespace OwnGraphicsAgain
 
 				//Material mat = new UnlitColorMaterial(new Color32(255f * dot, 0f, 0f, 255f));
 
-				if (IsInsideScreen(vertexDataNonAlloc[0].vertex) || IsInsideScreen(vertexDataNonAlloc[1].vertex) || IsInsideScreen(vertexDataNonAlloc[2].vertex))
+				if (IsTriangleInsideScreen(ref vertexDataNonAlloc[0].vertex, ref vertexDataNonAlloc[1].vertex, ref vertexDataNonAlloc[2].vertex))
 				{
 					bakedData.SetData(vertexDataNonAlloc[0], vertexDataNonAlloc[1], vertexDataNonAlloc[2]);
 					DrawTriangle_Slow_But_HighQuality(ref vertexDataNonAlloc[0].vertex, ref vertexDataNonAlloc[1].vertex, ref vertexDataNonAlloc[2].vertex, bakedData, mesh.material);

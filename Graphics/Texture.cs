@@ -9,6 +9,8 @@ namespace OwnGraphicsAgain
 		private int[] buffer;
 		private int width, height;
 
+		public Vector2 tiling { get; set; } = Vector2.one;
+
 		public Texture(string fileName)
 		{
 			Bitmap bitmap = new Bitmap(fileName);
@@ -27,6 +29,7 @@ namespace OwnGraphicsAgain
 
 		public Color GetColor(Vector2 uv)
 		{
+			uv = new Vector2(uv.x * tiling.x, uv.y * tiling.y);
 			uv.y = 1f - uv.y;
 
 			int x = (int)(uv.x * width);

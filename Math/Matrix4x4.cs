@@ -165,7 +165,7 @@ namespace EnginePart
 		}
 		public static Matrix4x4 CreateRotationMatrix(Vector3 euler)
 		{
-			return CreateRotationMatrix_X(euler.x) * CreateRotationMatrix_Y(euler.y) * CreateRotationMatrix_Z(euler.z);
+			return CreateRotationMatrix_Z(euler.z) * CreateRotationMatrix_Y(euler.y) * CreateRotationMatrix_X(euler.x);
 		}
 		public static Matrix4x4 CreateTranslationMatrix(Vector3 pos)
 		{
@@ -223,6 +223,8 @@ namespace EnginePart
 			up = Vector3.Cross(fwd, right);
 			return new Matrix4x4(right, up, fwd, new Vector4(0,0,0,1));
 		}
+
+
 		public static Matrix4x4 CreateFrustumMatrix(float fov, float aspect, float near, float far)
 		{
 			float tan = Mathf.Tan(fov * 0.5f);
@@ -246,10 +248,6 @@ namespace EnginePart
 		public Vector3 MultiplyPoint_With_WDevision(Vector3 point)
 		{
 			return (this * new Vector4(point.x, point.y, point.z, 1f)).ToVector3WithWDevision();
-		}
-		public Vector3 MultiplyVector_With_WDevision(Vector3 point)
-		{
-			return (this * new Vector4(point.x, point.y, point.z, 0f)).ToVector3WithWDevision();
 		}
 
 

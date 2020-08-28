@@ -4,33 +4,6 @@ using System.Runtime.CompilerServices;
 
 namespace OwnGraphicsAgain
 {
-	public struct Bounds
-	{
-		public Vector3 center;
-		public Vector3 size;
-		public Vector3 min { get; private set; }
-		public Vector3 max { get; private set; }
-
-		public Bounds(Vector3 center, Vector3 size)
-		{
-			this.center = center;
-			this.size = size;
-			size *= 0.5f;
-			min = center - size;
-			max = center + size;
-		}
-
-		public static Bounds MinMax(Vector3 min, Vector3 max)
-		{
-			if (min.x > max.x) Mathf.Swap(ref min.x, ref max.x);
-			if (min.y > max.y) Mathf.Swap(ref min.y, ref max.y);
-			if (min.z > max.z) Mathf.Swap(ref min.z, ref max.z);
-
-			Vector3 delta = max - min;
-			Vector3 center = (max + min) * 0.5f;
-			return new Bounds(center, delta);
-		}
-	}
 
 	public class Mesh
 	{
