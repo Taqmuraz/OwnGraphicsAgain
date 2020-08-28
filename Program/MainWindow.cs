@@ -26,7 +26,7 @@ namespace OwnGraphicsAgain
 
 		private void OnPanelPaint(object sender, PaintEventArgs e)
 		{
-			e.Graphics.DrawString($"Model translation : {modelMatrix.column_3}", Font, Brushes.White, new PointF());
+			e.Graphics.DrawString($"{modelMatrix.column_3}", Font, Brushes.White, new PointF());
 		}
 
 		private void ResizePanel()
@@ -69,14 +69,13 @@ namespace OwnGraphicsAgain
 				model.material = new TextureMaterial(texture);
 				flat.material = new ColorMaterial(Color.Gray);
 
-
-				float scale = 5f;
+				float scale = 10f;
 
 				Vector3 right = Vector3.right * scale;
 				Vector3 up = Vector3.up * scale;
 				Vector3 forward = Vector3.forward * scale;
 
-				modelMatrix = Matrix4x4.CreateWorldMatrix(right, up, forward, Vector3.zero);
+				modelMatrix = Matrix4x4.CreateWorldMatrix(right, up, forward, new Vector3(0f, 0f, -1f));
 			}
 			catch (Exception ex)
 			{
@@ -87,13 +86,14 @@ namespace OwnGraphicsAgain
 		protected override void OnMouseWheel(MouseEventArgs e)
 		{
 			base.OnMouseWheel(e);
+			cameraFOVmul += e.Delta * 0.001f;
 		}
 
 		private Vector2 lastMouseLocation;
 		private bool rotate;
 		private void OnMouseMove(object sender, MouseEventArgs e)
 		{
-			Vector2 location = new Vector2(-e.Y, e.X);
+			Vector2 location = new Vector2(e.Y, -e.X);
 			if (rotate)
 			{
 				controlRotation += (Vector3)(location - lastMouseLocation) * 0.5f;
@@ -155,10 +155,14 @@ namespace OwnGraphicsAgain
 		Vector3 controlRotation;
 		Vector3 modelRotationInput;
 		Matrix4x4 modelMatrix;
+		float cameraFOVmul = 1f;
 
 		private void CameraUpdate()
 		{
-			Matrix4x4 projection = Matrix4x4.CreateFrustumMatrix(-0.2f, 0.2f, -0.2f, 0.2f, 0.1f, 10f);
+			cameraFOVmul = cameraFOVmul.Clamp(0.5f, 2f);
+
+			Vector2 size = panel.imageSize;
+			Matrix4x4 projection = Matrix4x4.CreateFrustumMatrix(60f * cameraFOVmul, size.x / size.y, 0.1f, 10f);
 			
 			panel.projectionMatrix = projection;
 			Matrix4x4 view = Matrix4x4.RotateAround(controlRotation, Vector3.zero);

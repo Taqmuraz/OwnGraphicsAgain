@@ -64,6 +64,12 @@
 			return new Vector2(v.x, v.y);
 		}
 
+		public Vector3 ToVector3WithWDevision()
+		{
+			float dev = 1f / w;
+			return new Vector3(x * dev, y * dev, z * dev);
+		}
+
 		public static Vector4 Lerp(Vector4 a, Vector4 b, float t)
 		{
 			return a + (b - a) * t;

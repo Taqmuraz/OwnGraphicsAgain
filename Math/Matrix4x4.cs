@@ -223,14 +223,15 @@ namespace EnginePart
 			up = Vector3.Cross(fwd, right);
 			return new Matrix4x4(right, up, fwd, new Vector4(0,0,0,1));
 		}
-		public static Matrix4x4 CreateFrustumMatrix(float left, float right, float bottom, float top, float near, float far)
+		public static Matrix4x4 CreateFrustumMatrix(float fov, float aspect, float near, float far)
 		{
-			Vector4 row1 = new Vector4(2f / (right - left), 0.0f, 0.0f, -(right + left) / (right - left));
-			Vector4 row2 = new Vector4(0.0f, 2 / (top - bottom), 0.0f, -(top + bottom)/(top - bottom));
-			Vector4 row3 = new Vector4(0.0f, 0.0f, -2 / (far - near), -(far + near)/(far - near));
-			Vector4 row4 = new Vector4(0.0f, 0.0f, 0f, 1.0f);
+			float tan = Mathf.Tan(fov * 0.5f);
+			Vector4 row1 = new Vector4(1f / (aspect * tan), 0f, 0f, 0f);
+			Vector4 row2 = new Vector4(0f, 1f / tan, 0f, 0f);
+			Vector4 row3 = new Vector4(0f, 0f, 0f, 1f);
+			Vector4 row4 = new Vector4(0f, 0f, -1f, 0f);
 
-			return new Matrix4x4(row1, row2, row3, row4).GetTransponed();
+			return new Matrix4x4(row1, row2, row3, row4);
 		}
 
 		public Vector3 MultiplyPoint(Vector3 point)
@@ -241,6 +242,17 @@ namespace EnginePart
 		{
 			return (Vector3)(this * new Vector4(point.x, point.y, point.z, 0f));
 		}
+
+		public Vector3 MultiplyPoint_With_WDevision(Vector3 point)
+		{
+			return (this * new Vector4(point.x, point.y, point.z, 1f)).ToVector3WithWDevision();
+		}
+		public Vector3 MultiplyVector_With_WDevision(Vector3 point)
+		{
+			return (this * new Vector4(point.x, point.y, point.z, 0f)).ToVector3WithWDevision();
+		}
+
+
 		public Vector3 MultiplySize(Vector3 point)
 		{
 			Vector3 size = new Vector3(column_0.length, column_1.length, column_2.length);

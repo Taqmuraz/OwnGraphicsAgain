@@ -21,7 +21,7 @@ namespace OwnGraphicsAgain
 		public override Color32 FragmentShader(Vector3 barycentric, out float zBuffer, IFragmentShaderData shaderData)
 		{
 			zBuffer = shaderData.GetVertex(ref barycentric).z;
-			return color;
+			return ((Vector3)shaderData.GetUV(ref barycentric) * 255f).ToColor();
 		}
 
 		public override void VertexShader(IVertexShaderData shaderData)

@@ -359,13 +359,11 @@ namespace OwnGraphicsAgain
 
 		private bool IsInsideScreen(Vector3 point)
 		{
-			return point.x < width && point.y < height && point.x >= 0 && point.y >= 0;
+			return point.x <= width && point.y <= width && point.x >= 0f && point.y >= 0f && point.z > 0f;
 		}
 
 		private void ProjectionToScreen(ref Vector3 projection)
 		{
-			projection.y = 1f - projection.y;
-
 			projection.x = (projection.x + 1f) * width * 0.5f;
 			projection.y = (projection.y + 1f) * height * 0.5f;
 		}
@@ -387,7 +385,7 @@ namespace OwnGraphicsAgain
 					Mesh.VertexIndex vertexIndex = mesh.indices[i + index];
 
 					VertexData data = vertexDataNonAlloc[index];
-					data.vertex = clipVerticesNonAlloc[index] = mvp.MultiplyPoint(mesh.vertices[vertexIndex.vertex]);
+					data.vertex = clipVerticesNonAlloc[index] = mvp.MultiplyPoint_With_WDevision(mesh.vertices[vertexIndex.vertex]);
 					data.normal = model.MultiplyVector(mesh.normals[vertexIndex.normal]).normalized;
 					data.uv = mesh.uv[vertexIndex.uv];
 
@@ -406,6 +404,8 @@ namespace OwnGraphicsAgain
 				Vector3 cross = Vector3.Cross(v0 - v2, v1 - v2);
 				float dot = Vector3.Dot(cross.normalized, Vector3.forward);
 				if (dot < 0) continue;
+
+				//Material mat = new UnlitColorMaterial(new Color32(255f * dot, 0f, 0f, 255f));
 
 				if (IsInsideScreen(vertexDataNonAlloc[0].vertex) || IsInsideScreen(vertexDataNonAlloc[1].vertex) || IsInsideScreen(vertexDataNonAlloc[2].vertex))
 				{
