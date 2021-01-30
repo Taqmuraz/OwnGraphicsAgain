@@ -7,3 +7,12 @@ F:\VisualStudioProjects\OwnGraphicsAgain\obj\Debug\OwnGraphicsAgain.csproj.Gener
 F:\VisualStudioProjects\OwnGraphicsAgain\obj\Debug\OwnGraphicsAgain.csproj.CoreCompileInputs.cache
 F:\VisualStudioProjects\OwnGraphicsAgain\obj\Debug\OwnGraphicsAgain.exe
 F:\VisualStudioProjects\OwnGraphicsAgain\obj\Debug\OwnGraphicsAgain.pdb
+E:\VisualStudioProjects\OwnGraphicsAgain\bin\Debug\OwnGraphicsAgain.exe.config
+E:\VisualStudioProjects\OwnGraphicsAgain\bin\Debug\OwnGraphicsAgain.exe
+E:\VisualStudioProjects\OwnGraphicsAgain\bin\Debug\OwnGraphicsAgain.pdb
+E:\VisualStudioProjects\OwnGraphicsAgain\obj\Debug\OwnGraphicsAgain.csprojAssemblyReference.cache
+E:\VisualStudioProjects\OwnGraphicsAgain\obj\Debug\OwnGraphicsAgain.Properties.Resources.resources
+E:\VisualStudioProjects\OwnGraphicsAgain\obj\Debug\OwnGraphicsAgain.csproj.GenerateResource.cache
+E:\VisualStudioProjects\OwnGraphicsAgain\obj\Debug\OwnGraphicsAgain.csproj.CoreCompileInputs.cache
+E:\VisualStudioProjects\OwnGraphicsAgain\obj\Debug\OwnGraphicsAgain.exe
+E:\VisualStudioProjects\OwnGraphicsAgain\obj\Debug\OwnGraphicsAgain.pdb

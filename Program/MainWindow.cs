@@ -10,7 +10,6 @@ namespace OwnGraphicsAgain
 	{
 		DrawPanel panel;
 		Mesh model;
-		Mesh flat;
 		Timer timer;
 
 		private void CreatePanel(int width, int height)
@@ -53,18 +52,15 @@ namespace OwnGraphicsAgain
 
 			try
 			{
-				string path = "F:/BLENDER_MODELS/Terrain.obj";
+				string path = "C:/BLENDER_MODELS/Soldier.obj";
 				model = ObjMeshManager.LoadMesh(path);
-				path = "F:/BLENDER_MODELS/FlyStation.obj";
 
-				flat = ObjMeshManager.LoadMesh(path);
-				Texture texture = new Texture("F:/BLENDER_MODELS/Grass.png");
+				Texture texture = new Texture("C:/BLENDER_MODELS/Soldier.png");
 				model.material = new TextureMaterial(texture);
 				texture.tiling = new Vector2(1f, 1f);
 				//model.material = new ColorMaterial(Color.Green);
-				flat.material = new ColorMaterial(Color.Gray);
 
-				float scale = 0.25f;
+				float scale = 33f;
 
 				Vector3 right = Vector3.right * scale;
 				Vector3 up = Vector3.up * scale;
@@ -146,7 +142,7 @@ namespace OwnGraphicsAgain
 		int fpsMax;
 		int fpsMin;
 		int fps;
-		Vector3 controlPositionInput;
+		Vector3 controlPositionInput = new Vector3(0f, 0f, 5f);
 		Vector3 controlRotation;
 		Vector3 modelRotationInput;
 		Matrix4x4 modelMatrix;
@@ -188,10 +184,6 @@ namespace OwnGraphicsAgain
 		{
 			modelMatrix = Matrix4x4.RotateAround(modelRotationInput, Vector3.zero) * modelMatrix;
 			modelRotationInput = Vector3.zero;
-
-			//float flatScale = 1f;
-
-			//panel.DrawMesh(flat, Matrix4x4.CreateWorldMatrix(Vector3.right * flatScale, Vector3.up * flatScale, Vector3.forward * flatScale, Vector3.zero));
 			panel.DrawMesh(model, modelMatrix);
 		}
 	}
