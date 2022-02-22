@@ -26,7 +26,7 @@ namespace OwnGraphicsAgain
 				}
 			}
 		}
-
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public Color GetColor(Vector2 uv)
 		{
 			uv = new Vector2(uv.x * tiling.x, uv.y * tiling.y);

@@ -11,6 +11,8 @@ namespace EnginePart
 		public Vector4 column_3;
 
 		public static readonly Matrix4x4 identity = new Matrix4x4(new Vector4(1f, 0f, 0f, 0f), new Vector4(0f, 1f, 0f, 0f), new Vector4(0f, 0f, 1f, 0f), new Vector4(0f, 0f, 0f, 1f));
+
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public Vector4 GetLine (int index)
 		{
 			switch (index)
@@ -35,6 +37,7 @@ namespace EnginePart
 		{
 		}
 
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static Matrix4x4 CreateViewport (int width, int height)
 		{
 			Matrix4x4 m = new Matrix4x4();
@@ -53,7 +56,7 @@ namespace EnginePart
 			this.column_2 = column_2;
 			this.column_3 = column_3;
 		}
-
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static Vector4 operator * (Matrix4x4 m, Vector4 v)
 		{
 			float x = Vector4.Dot (v, m.GetLine(0));
@@ -62,6 +65,7 @@ namespace EnginePart
 			float w = Vector4.Dot (v, m.GetLine(3));
 			return new Vector4 (x, y, z, w);
 		}
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static Matrix4x4 operator * (Matrix4x4 a, Matrix4x4 b)
 		{
 			Vector4 c0 = b * a.column_0;
@@ -71,7 +75,7 @@ namespace EnginePart
 
 			return new Matrix4x4(c0, c1, c2, c3);
 		}
-
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static Matrix4x4 operator * (Matrix4x4 matrix, float f)
 		{
 			matrix.column_0 *= f;
@@ -83,6 +87,7 @@ namespace EnginePart
 
 		public float this[int i, int j]
 		{
+			[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 			get
 			{
 				switch (j)
@@ -94,6 +99,7 @@ namespace EnginePart
 					default:return 0;
 				}
 			}
+			[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 			set
 			{
 				switch (j)
@@ -105,7 +111,7 @@ namespace EnginePart
 				}
 			}
 		}
-
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public float GetDeterminant ()
 		{
 			float SubFactor00 = this[2, 2] * this[3, 3] - this[3, 2] * this[2, 3];
@@ -126,52 +132,59 @@ namespace EnginePart
 				this[0, 0] * DetCof[0] + this[0, 1] * DetCof[1] +
 				this[0, 2] * DetCof[2] + this[0, 3] * DetCof[3];
 		}
-
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public Matrix4x4 GetTransponed ()
 		{
 			return new Matrix4x4(GetLine(0), GetLine(1), GetLine(2), GetLine(3));
 		}
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public Matrix4x4 GetInversed ()
 		{
 			return GetTransponed () * (1f / GetDeterminant ());
 		}
-
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public override string ToString ()
 		{
 			return string.Format ("{0}\n{1}\n{2}\n{3}", column_0.ToString (), column_1.ToString (), column_2.ToString (), column_3.ToString());
 		}
-
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public Matrix4x4 Transpose (Vector3 position)
 		{
 			return new Matrix4x4 (column_0, column_1, column_2, new Vector4 (position.x, position.y, position.z, 1f));
 		}
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public Matrix4x4 Translate (Vector3 position)
 		{
 			Matrix4x4 matrix = identity;
 			matrix.column_3 = new Vector4(position.x, position.y, position.z, 1f);
 			return matrix * this;
 		}
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static Matrix4x4 CreateWorldMatrix (Vector3 right, Vector3 up, Vector3 forward, Vector3 position)
 		{
 			return new Matrix4x4 (right, up, forward, new Vector4 (position.x, position.y, position.z, 1f));
 		}
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public Matrix4x4 Rotate(Vector3 euler)
 		{
 			return this * CreateRotationMatrix(euler);
 		}
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static Matrix4x4 RotateAround(Vector3 euler, Vector3 position)
 		{
 			return CreateRotationMatrix(euler) * CreateTranslationMatrix(position);
 		}
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static Matrix4x4 CreateRotationMatrix(Vector3 euler)
 		{
 			return CreateRotationMatrix_Z(euler.z) * CreateRotationMatrix_Y(euler.y) * CreateRotationMatrix_X(euler.x);
 		}
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static Matrix4x4 CreateTranslationMatrix(Vector3 pos)
 		{
 			return new Matrix4x4(Vector3.right, Vector3.up, Vector3.forward, new Vector4(pos.x, pos.y, pos.z, 1f));
 		}
-
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static Matrix4x4 Lerp(Matrix4x4 a, Matrix4x4 b, float t)
 		{
 			a.column_0 = Vector4.Lerp(a.column_0, b.column_0, t);
@@ -180,6 +193,7 @@ namespace EnginePart
 			a.column_3 = Vector4.Lerp(a.column_3, b.column_3, t);
 			return a;
 		}
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static Matrix4x4 CreateRotationMatrix_X(float angle)
 		{
 			float sin = angle.Sin();
@@ -192,6 +206,7 @@ namespace EnginePart
 			Vector4 c_3 = new Vector4(0, 0, 0, 1);
 			return new Matrix4x4(c_0, c_1, c_2, c_3);
 		}
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static Matrix4x4 CreateRotationMatrix_Y(float angle)
 		{
 			float sin = angle.Sin();
@@ -204,6 +219,7 @@ namespace EnginePart
 			Vector4 c_3 = new Vector4(0, 0, 0, 1);
 			return new Matrix4x4(c_0, c_1, c_2, c_3);
 		}
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static Matrix4x4 CreateRotationMatrix_Z(float angle)
 		{
 			float sin = angle.Sin();
@@ -216,6 +232,7 @@ namespace EnginePart
 			Vector4 c_3 = new Vector4(0, 0, 0, 1);
 			return new Matrix4x4(c_0, c_1, c_2, c_3);
 		}
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static Matrix4x4 LookRotation (Vector3 to, Vector3 up)
 		{
 			Vector3 fwd = to;
@@ -224,7 +241,7 @@ namespace EnginePart
 			return new Matrix4x4(right, up, fwd, new Vector4(0,0,0,1));
 		}
 
-
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public static Matrix4x4 CreateFrustumMatrix(float fov, float aspect, float near, float far)
 		{
 			float tan = Mathf.Tan(fov * 0.5f);
@@ -235,22 +252,23 @@ namespace EnginePart
 
 			return new Matrix4x4(row1, row2, row3, row4);
 		}
-
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public Vector3 MultiplyPoint(Vector3 point)
 		{
 			return (Vector3)(this * new Vector4(point.x, point.y, point.z, 1f));
 		}
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public Vector3 MultiplyVector(Vector3 point)
 		{
 			return (Vector3)(this * new Vector4(point.x, point.y, point.z, 0f));
 		}
-
-		public Vector3 MultiplyPoint_With_WDevision(Vector3 point)
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+		public Vector3 MultiplyPoint_With_WDivision(Vector3 point)
 		{
 			return (this * new Vector4(point.x, point.y, point.z, 1f)).ToVector3WithWDevision();
 		}
 
-
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public Vector3 MultiplySize(Vector3 point)
 		{
 			Vector3 size = new Vector3(column_0.length, column_1.length, column_2.length);

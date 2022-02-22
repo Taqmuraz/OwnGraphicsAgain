@@ -14,6 +14,8 @@ namespace OwnGraphicsAgain
 		[STAThread]
 		static void Main()
 		{
+		A:
+			goto A;
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			Application.Run(new MainWindow());

@@ -32,7 +32,7 @@ namespace OwnGraphicsAgain
 			InitializeComponent();
 
 
-			Size = new Size(280, 180);
+			Size = new Size(1024, 640);
 			CreatePanel(Width, Height);
 			SizeChanged += (s, e) => ResizePanel();
 
@@ -142,7 +142,7 @@ namespace OwnGraphicsAgain
 		int fpsMax;
 		int fpsMin;
 		int fps;
-		Vector3 controlPositionInput = new Vector3(0f, 0f, 5f);
+		Vector3 controlPositionInput = new Vector3(0f, 100f, 250f);
 		Vector3 controlRotation;
 		Vector3 modelRotationInput;
 		Matrix4x4 modelMatrix;

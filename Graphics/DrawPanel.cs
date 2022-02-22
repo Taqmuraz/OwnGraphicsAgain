@@ -46,7 +46,7 @@ namespace OwnGraphicsAgain
 			public BakedTriangleData()
 			{
 			}
-
+			[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 			public void SetData(VertexData v0, VertexData v1, VertexData v2)
 			{
 				Matrix4x4 matrix = new Matrix4x4();
@@ -70,17 +70,17 @@ namespace OwnGraphicsAgain
 				rawV1 = v1;
 				rawV2 = v2;
 			}
-
+			[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 			public Vector3 GetVertex(ref Vector3 barycentric)
 			{
 				return vertices.MultiplyVector(barycentric);
 			}
-
+			[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 			public Vector2 GetUV(ref Vector3 barycentric)
 			{
 				return (Vector2)uvs.MultiplyVector(barycentric);
 			}
-
+			[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 			public Vector3 GetNormal(ref Vector3 barycentric)
 			{
 				return normals.MultiplyVector(barycentric);
@@ -96,7 +96,7 @@ namespace OwnGraphicsAgain
 			public VertexData()
 			{
 			}
-
+			[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 			public void SetData(Vector3 vertex, Vector3 normal, Vector2 uv)
 			{
 				this.vertex = vertex;
@@ -123,6 +123,7 @@ namespace OwnGraphicsAgain
 		public Vector2 imageSize => new Vector2(width, height);
 		public Vector2Int imageSizeInt => new Vector2Int(width, height);
 
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		private void FillZone(int startX, int startY, int sizeX, int sizeY, float depth, Color color)
 		{
 			WritePixel(startX, startY, depth, color);
@@ -131,6 +132,7 @@ namespace OwnGraphicsAgain
 					WritePixel(x + startX, y + startY, depth, color);
 		}
 
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public void WritePixel(int x, int y, float depth, Color color)
 		{
 			if (x < width && y < height && x >= 0 && y >= 0)
@@ -144,6 +146,7 @@ namespace OwnGraphicsAgain
 			}
 		}
 
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public Color ReadPixel(int x, int y)
 		{
 			int ptr = y * width + x;
@@ -183,6 +186,7 @@ namespace OwnGraphicsAgain
 			Array.Copy(pixelsBufferClear, pixelsBuffer, width * height);
 		}
 
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		private void DrawTriangle_Fast_But_Low_Quality(ref Vector3 v0, ref Vector3 v1, ref Vector3 v2, BakedTriangleData data, Material material)
 		{
 			Vector3 b0 = Vector3.right;
@@ -209,6 +213,7 @@ namespace OwnGraphicsAgain
 			DrawTrianglePart(ref v0, ref v1, ref v2, ref b0, ref b1, ref b2, ref data, material, false);
 		}
 
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		private void DrawTriangle_Slow_But_HighQuality(ref Vector3 v0, ref Vector3 v1, ref Vector3 v2, BakedTriangleData data, Material material)
 		{
 			Vector2Int min = new Vector2Int((int)Mathf.Min(v0.x, v1.x, v2.x), (int)Mathf.Min(v0.y, v1.y, v2.y));
@@ -249,6 +254,7 @@ namespace OwnGraphicsAgain
 			}
 		}
 
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		private void DrawTrianglePart(ref Vector3 v0, ref Vector3 v1, ref Vector3 v2, ref Vector3 b0, ref Vector3 b1, ref Vector3 b2, ref BakedTriangleData data, Material material, bool buttom)
 		{
 			Vector3Int vi0 = (Vector3Int)v0;
@@ -321,6 +327,7 @@ namespace OwnGraphicsAgain
 			}
 		}
 
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public void DrawLine(Vector2Int start, Vector2Int end, Color color)
 		{
 			int a = end.y - start.y;
@@ -362,6 +369,7 @@ namespace OwnGraphicsAgain
 		}
 		BakedTriangleData bakedData = new BakedTriangleData();
 
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		private bool IsTriangleInsideScreen(ref Vector3 v0, ref Vector3 v1, ref Vector3 v2)
 		{
 			OwnGraphicsAgain.Bounds bounds = OwnGraphicsAgain.Bounds.MinMax(new Vector3(0f, 0f, 0f), new Vector3(width, height, 1f));
@@ -386,6 +394,7 @@ namespace OwnGraphicsAgain
 			boundsToDraw.Clear();
 		}
 
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		private void ProjectionToScreen(ref Vector3 projection)
 		{
 			projection.x = (projection.x + 1f) * width * 0.5f;
@@ -398,6 +407,7 @@ namespace OwnGraphicsAgain
 		};
 		private Vector3[] clipVerticesNonAlloc = new Vector3[3];
 
+		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 		public void DrawMesh(Mesh mesh, Matrix4x4 model)
 		{
 			projectionMatrix = Matrix4x4.CreateFrustumMatrix(fieldOfView, width / (float)height, nearPlane, farPlane);
@@ -411,7 +421,7 @@ namespace OwnGraphicsAgain
 					Mesh.VertexIndex vertexIndex = mesh.indices[i + index];
 
 					VertexData data = vertexDataNonAlloc[index];
-					data.vertex = clipVerticesNonAlloc[index] = mvp.MultiplyPoint_With_WDevision(mesh.vertices[vertexIndex.vertex]);
+					data.vertex = clipVerticesNonAlloc[index] = mvp.MultiplyPoint_With_WDivision(mesh.vertices[vertexIndex.vertex]);
 					data.normal = model.MultiplyVector(mesh.normals[vertexIndex.normal]).normalized;
 					data.uv = mesh.uv[vertexIndex.uv];
 
