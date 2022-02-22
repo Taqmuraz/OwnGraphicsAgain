@@ -45,7 +45,7 @@ namespace OwnGraphicsAgain
 			Timer fpsTimer = new Timer();
 			fpsTimer.Tick += (s, e) =>
 			{
-				Text = $"Fps : {fps.ToString()} min : {fpsMin.ToString()} max : {fpsMax.ToString()}";
+				Text = $"Fps : {fps.ToString()} {controlPositionInput.ToString()}";
 			};
 			fpsTimer.Interval = 100;
 			fpsTimer.Start();
