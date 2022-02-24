@@ -32,7 +32,7 @@ namespace OwnGraphicsAgain
 			InitializeComponent();
 
 
-			Size = new Size(1024, 640);
+			Size = new Size(1920, 1080);
 			CreatePanel(Width, Height);
 			SizeChanged += (s, e) => ResizePanel();
 
@@ -52,10 +52,10 @@ namespace OwnGraphicsAgain
 
 			try
 			{
-				string path = "C:/BLENDER_MODELS/Soldier.obj";
+				string path = "./Data/Soldier/Soldier.obj";
 				model = ObjMeshManager.LoadMesh(path);
 
-				Texture texture = new Texture("C:/BLENDER_MODELS/Soldier.png");
+				Texture texture = new Texture("./Data/Soldier/Soldier.png");
 				model.material = new TextureMaterial(texture);
 				texture.tiling = new Vector2(1f, 1f);
 				//model.material = new ColorMaterial(Color.Green);

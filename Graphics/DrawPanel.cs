@@ -446,7 +446,7 @@ namespace OwnGraphicsAgain
 				if (IsTriangleInsideScreen(ref vertexDataNonAlloc[0].vertex, ref vertexDataNonAlloc[1].vertex, ref vertexDataNonAlloc[2].vertex))
 				{
 					bakedData.SetData(vertexDataNonAlloc[0], vertexDataNonAlloc[1], vertexDataNonAlloc[2]);
-					DrawTriangle_Slow_But_HighQuality(ref vertexDataNonAlloc[0].vertex, ref vertexDataNonAlloc[1].vertex, ref vertexDataNonAlloc[2].vertex, bakedData, mesh.material);
+					DrawTriangle_Fast_But_Low_Quality(ref vertexDataNonAlloc[0].vertex, ref vertexDataNonAlloc[1].vertex, ref vertexDataNonAlloc[2].vertex, bakedData, mesh.material);
 				}
 			}
 		}
