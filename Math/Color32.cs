@@ -25,27 +25,27 @@
 		public static readonly Color32 white = new Color32 (255, 255, 255, 255);
 		public static readonly Color32 black = new Color32 (0, 0, 0, 255);
 
-		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+		
 		public static Color32 operator * (Color32 a, float b)
 		{
 			return new Color32(a.r * b, a.g * b, a.b * b, a.a);
 		}
-		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+		
 		public static Color32 operator *(Color32 a, Color32 b)
 		{
 			return new Color32(a.r * b.r, a.g * b.g, a.b * b.b, a.a * b.a);
 		}
-		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+		
 		public static Color32 operator +(Color32 a, Color32 b)
 		{
 			return new Color32(a.r + b.r, a.g + b.g, a.b + b.b, a.a + b.a);
 		}
-		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+		
 		public static implicit operator System.Drawing.Color (Color32 color)
 		{
 			return System.Drawing.Color.FromArgb (color.a, color.r, color.g, color.b);
 		}
-		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+		
 		public static implicit operator Color32(System.Drawing.Color color)
 		{
 			return new Color32(color.R, color.G, color.B, color.A);

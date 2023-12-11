@@ -66,6 +66,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Graphics\AsyncTask.cs" />
+    <Compile Include="Graphics\IAsyncTask.cs" />
     <Compile Include="Math\Bounds.cs" />
     <Compile Include="Graphics\ColorMaterial.cs" />
     <Compile Include="Graphics\IFragmentShaderData.cs" />

@@ -1,0 +1,9 @@
+D:\VisualStudioProjects\OwnGraphicsAgain\bin\Release\OwnGraphicsAgain.exe.config
+D:\VisualStudioProjects\OwnGraphicsAgain\bin\Release\OwnGraphicsAgain.exe
+D:\VisualStudioProjects\OwnGraphicsAgain\bin\Release\OwnGraphicsAgain.pdb
+D:\VisualStudioProjects\OwnGraphicsAgain\obj\Release\OwnGraphicsAgain.Properties.Resources.resources
+D:\VisualStudioProjects\OwnGraphicsAgain\obj\Release\OwnGraphicsAgain.csproj.GenerateResource.cache
+D:\VisualStudioProjects\OwnGraphicsAgain\obj\Release\OwnGraphicsAgain.csproj.CoreCompileInputs.cache
+D:\VisualStudioProjects\OwnGraphicsAgain\obj\Release\OwnGraphicsAgain.exe
+D:\VisualStudioProjects\OwnGraphicsAgain\obj\Release\OwnGraphicsAgain.pdb
+D:\VisualStudioProjects\OwnGraphicsAgain\obj\Release\OwnGraphicsAgain.csproj.AssemblyReference.cache

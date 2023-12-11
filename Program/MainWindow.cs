@@ -32,13 +32,13 @@ namespace OwnGraphicsAgain
 			InitializeComponent();
 
 
-			Size = new Size(1920, 1080);
+			Size = new Size(640, 480);
 			CreatePanel(Width, Height);
 			SizeChanged += (s, e) => ResizePanel();
 
 			timer = new Timer();
 			timer.Tick += (s, e) => Draw();
-			timer.Interval = 10;
+			timer.Interval = 20;
 			timer.Start();
 			Disposed += (s, e) => timer.Dispose();
 
